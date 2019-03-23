@@ -1,0 +1,99 @@
+Sub VBA_Homework_Stock()
+
+
+
+'prep headers
+Cells(1, "I") = "Ticker"
+Cells(1, "J") = "Total Volume"
+Cells(1, "K").Value = "Yearly Change"
+Cells(1, "L").Value = "Percent Change"
+
+'add tickers to new column and remove duplicates
+Dim LastRowA As Long
+
+LastRowA = ActiveSheet.Cells(Rows.Count, "A").End(xlUp).Row
+
+For i = 2 To LastRowA
+    Cells(i, "I").Value = Cells(i, "A").Value
+Next i
+
+Columns("I").Select
+ActiveSheet.Range("I:I").removeduplicates Columns:=1, Header:=xlNo
+
+
+'Find total volume per ticker
+Dim LastRowI As Long
+
+LastRowI = ActiveSheet.Cells(Rows.Count, "I").End(xlUp).Row
+
+For i = 2 To LastRowI
+    For j = 2 To LastRowA
+        If Cells(j, "A").Value = Cells(i, "I").Value Then
+            Cells(i, "J").Value = Cells(i, "J").Value + Cells(j, "G").Value
+        End If
+    Next j
+Next i
+    
+'find yearly change per ticker
+For i = 2 To LastRowA
+    If Cells(i, "A").Value <> Cells(i + 1, "A").Value Then 'end date
+        For j = 2 To LastRowI
+            If Cells(j, "I").Value = Cells(i, "A").Value Then
+                Cells(j, "K").Value = Cells(j, "K").Value + Cells(i, "F").Value
+            End If
+        Next j
+    ElseIf Cells(i, "A").Value <> Cells(i - 1, "A").Value Then 'start date
+        For j = 2 To LastRowI
+            If Cells(j, "I").Value = Cells(i, "A").Value Then
+                Cells(j, "K").Value = Cells(j, "K").Value - Cells(i, "C").Value
+            End If
+        Next j
+    End If
+Next i
+
+'find %change per ticker
+For i = 2 To LastRowA
+    If Cells(i, "A").Value <> Cells(i - 1, "A").Value Then 'start date
+        For j = 2 To LastRowI
+            If Cells(j, "I").Value = Cells(i, "A").Value Then
+                Cells(j, "L").Value = Cells(j, "K").Value / Cells(i, "C").Value
+            End If
+        Next j
+    End If
+Next i
+
+'color formatting
+For j = 2 To LastRowI
+    If Cells(j, "K").Value >= 0 Then
+        Cells(j, "K").Interior.Color = RGB(100, 255, 100)
+    ElseIf Cells(j, "K").Value < 0 Then
+        Cells(j, "K").Interior.Color = RGB(255, 0, 0)
+    End If
+Next j
+
+'Hard
+Cells(2, "O").Value = "Greatest% Increase"
+Cells(3, "O").Value = "Greatest% Decrease"
+Cells(4, "O").Value = "Greatest Total Volume"
+
+Cells(1, "P").Value = "Ticker"
+Cells(1, "Q").Value = "Value"
+
+
+For j = 2 To LastRowI
+    If Cells(j, "L").Value > Cells(2, "Q").Value Then
+        Cells(2, "P").Value = Cells(j, "I").Value
+        Cells(2, "Q").Value = Cells(j, "L").Value
+    ElseIf Cells(j, "L").Value < Cells(3, "Q").Value Then
+        Cells(3, "P").Value = Cells(j, "I").Value
+        Cells(3, "Q").Value = Cells(j, "L").Value
+    End If
+    If Cells(j, "J").Value > Cells(4, "Q").Value Then
+        Cells(4, "P").Value = Cells(j, "I").Value
+        Cells(4, "Q").Value = Cells(j, "J").Value
+    End If
+Next j
+
+    
+    
+End Sub

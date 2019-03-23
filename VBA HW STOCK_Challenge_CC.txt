@@ -1,0 +1,87 @@
+Sub challenge_moderate_hard()
+
+
+Dim ws As Worksheet
+ 
+ 
+ 
+For Each ws In Worksheets
+
+
+
+    ws.Cells(1, "K").Value = "Yearly Change"
+    ws.Cells(1, "L").Value = "Percent Change"
+    
+    Dim LastRowA As Long
+    Dim LastRowI As Long
+    
+    LastRowA = ws.Cells(Rows.Count, "A").End(xlUp).Row
+    LastRowI = ws.Cells(Rows.Count, "I").End(xlUp).Row
+    
+    
+        
+    'find yearly change per ticker
+    For i = 2 To LastRowA
+        If ws.Cells(i, "A").Value <> ws.Cells(i + 1, "A").Value Then 'end date
+            For j = 2 To LastRowI
+                If ws.Cells(j, "I").Value = ws.Cells(i, "A").Value Then
+                    ws.Cells(j, "K").Value = ws.Cells(j, "K").Value + ws.Cells(i, "F").Value
+                End If
+            Next j
+        ElseIf ws.Cells(i, "A").Value <> ws.Cells(i - 1, "A").Value Then 'start date
+            For j = 2 To LastRowI
+                If ws.Cells(j, "I").Value = ws.Cells(i, "A").Value Then
+                    ws.Cells(j, "K").Value = ws.Cells(j, "K").Value - ws.Cells(i, "C").Value
+                End If
+            Next j
+        End If
+    Next i
+    
+    'find %change per ticker
+    For i = 2 To LastRowA
+        If ws.Cells(i, "A").Value <> ws.Cells(i - 1, "A").Value Then 'start date
+            For j = 2 To LastRowI
+                If ws.Cells(j, "I").Value = ws.Cells(i, "A").Value Then
+                    ws.Cells(j, "L").Value = ws.Cells(j, "K").Value / ws.Cells(i, "C").Value
+                End If
+            Next j
+        End If
+    Next i
+    
+    'color formatting
+    For j = 2 To LastRowI
+        If ws.Cells(j, "K").Value >= 0 Then
+            ws.Cells(j, "K").Interior.Color = RGB(100, 255, 100)
+        ElseIf ws.Cells(j, "K").Value < 0 Then
+            ws.Cells(j, "K").Interior.Color = RGB(255, 0, 0)
+        End If
+    Next j
+    
+    'Hard
+    ws.Cells(2, "O").Value = "Greatest% Increase"
+    ws.Cells(3, "O").Value = "Greatest% Decrease"
+    ws.Cells(4, "O").Value = "Greatest Total Volume"
+    
+    ws.Cells(1, "P").Value = "Ticker"
+    ws.Cells(1, "Q").Value = "Value"
+    
+    
+    For j = 2 To LastRowI
+        If ws.Cells(j, "L").Value > ws.Cells(2, "Q").Value Then
+            ws.Cells(2, "P").Value = ws.Cells(j, "I").Value
+            ws.Cells(2, "Q").Value = ws.Cells(j, "L").Value
+        ElseIf Cells(j, "L").Value < ws.Cells(3, "Q").Value Then
+            ws.Cells(3, "P").Value = ws.Cells(j, "I").Value
+            ws.Cells(3, "Q").Value = ws.Cells(j, "L").Value
+        End If
+        If ws.Cells(j, "J").Value > ws.Cells(4, "Q").Value Then
+            ws.Cells(4, "P").Value = ws.Cells(j, "I").Value
+            ws.Cells(4, "Q").Value = ws.Cells(j, "J").Value
+        End If
+    Next j
+
+ 
+Next
+    
+End Sub
+
